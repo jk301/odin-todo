@@ -1,0 +1,51 @@
+/* sidebar.css */
+
+.sidebar-container {
+    position: relative;
+    height: 100vh;
+    width: 25%;
+    min-width: 300px;
+    background-color: antiquewhite;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-y: auto;
+}
+
+.sidebar-container > h1 {
+    font-size: 50px;
+    margin-bottom: 30px;
+}
+
+.project-divs {
+    font-size: 20px;
+    padding: 20px;
+    border-radius: 8px;
+    width: 100%;
+}
+.project-divs:hover {
+    background-color: rgb(224, 206, 183);
+}
+
+.projects-list {
+    overflow-y: auto;
+    flex-grow: 1;
+    width: 100%;
+}
+.projects-list::-webkit-scrollbar {
+    display: none;
+}
+
+.add-project-icon {
+    position: absolute;
+    top: 85%;
+    left: 70%;
+    box-sizing: border-box;
+    padding: 10px;
+    border-radius: 40px;
+}
+
+.add-project-icon:hover{
+    background-color: rgb(224, 206, 183);
+}
