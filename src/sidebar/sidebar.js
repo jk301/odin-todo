@@ -36,6 +36,7 @@ export const sidebar = (() => {
 const addIcon = document.createElement("img");
 addIcon.src = plusIcon;
 addIcon.classList.add("add-project-icon");
+addIcon.title = "Add Project"
 
 sidebar.container.appendChild(addIcon);
 
