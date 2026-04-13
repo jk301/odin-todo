@@ -8,7 +8,15 @@
 }
 
 body {
-  background-color: grey;
   display: flex;
-  
+  overflow: hidden;
+  height: 100vh;
+}
+
+.main-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 100vh;
+  overflow: hidden;
 }
