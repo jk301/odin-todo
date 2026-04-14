@@ -2,38 +2,38 @@
 import "./styles.css";
 import { sidebar } from "./sidebar/sidebar.js";
 import { main_header, main_content } from "./main_page/main_page.js";
+import { modal } from "./modal/modal.js";
+import { projects, addProject, deleteProject, editProject } from "./storage/storage.js";
 
-const sidebarContent = sidebar;
-const mainHeader = main_header;
-const mainContent = main_content;
-
-document.body.append(sidebarContent.container);
+document.body.append(sidebar.container);
 
 const mainBody = document.createElement("div");
 mainBody.classList.add("main-body");
 document.body.appendChild(mainBody);
 
-sidebarContent.addProject("projects 1");
-sidebarContent.addProject("projects 1");
-sidebarContent.addProject("projects 1");
-sidebarContent.addProject("projects 1");
-sidebarContent.addProject("projects 1");
-sidebarContent.addProject("projects 1");
-sidebarContent.addProject("projects 1");
-sidebarContent.addProject("projects 1");   
+mainBody.appendChild(main_header.container);
+mainBody.appendChild(main_content.container);
 
+// add project
+const addProjectIcon = document.querySelector(".add-project-icon");
+addProjectIcon.addEventListener("click", () => {
+    modal.open("add");
+    modal.onConfirm((name, desc) => {
+    addProject(name, desc);
+    const index = projects.length - 1;
+    sidebar.addProject(name,
+        () => main_header.setContent(name, desc),
+        (updateName) => {
+            modal.open("edit", name, desc);
+            modal.onConfirm((newName, newDesc) => {
+                editProject(index, newName, newDesc);
+                updateName(newName);
+                main_header.setContent(newName, newDesc);
+            });
+        },
+        () => deleteProject(index)
+    );
+});
+});
 
-
-
-mainBody.appendChild(mainHeader.container);
-mainBody.appendChild(mainContent.container);
-
-mainContent.createCard("title", "description", "due", "priority");
-mainContent.createCard("title", "description", "due", "priority");
-mainContent.createCard("title", "description", "due", "priority");
-mainContent.createCard("title", "description this is a long one that might break the link barrier of the card", "due", "priority");
-mainContent.createCard("title", "description", "due", "priority");
-mainContent.createCard("title", "description", "due", "priority");
-mainContent.createCard("title", "description", "due", "priority");
-mainContent.createCard("title", "description", "due", "priority");
 
