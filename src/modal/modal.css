@@ -74,3 +74,22 @@
 .modal-confirm:hover {
     background-color: #4a3b2e;
 }
+
+/* todo */
+.modal-select {
+    padding: 10px;
+    border: none;
+    border-bottom: 2px solid #5c4a3a;
+    background: transparent;
+    font-size: 16px;
+    font-family: 'Courier New', Courier, monospace;
+    outline: none;
+    width: 100%;
+    cursor: pointer;
+    color: #5c4a3a;
+}
+
+.modal-select option {
+    background-color: antiquewhite;
+    color: #5c4a3a;
+}

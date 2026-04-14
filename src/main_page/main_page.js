@@ -1,4 +1,5 @@
 /* main_page */
+import "../modal/modal.css";
 import "./main_page.css"
 import doneIcon from "../icons/done.svg";
 import editIcon from "../icons/edit.svg";
@@ -21,18 +22,23 @@ export const main_header = (() => {
     header.appendChild(main_desc);
 
     return { container : header, setContent };
-
 })();
 
 export const main_content = (() => {
     const content = document.createElement("div");
     content.classList.add("content");
 
+    const priorityColors = {
+        low: "#4caf50",
+        medium: "#ff9800",
+        high: "#f44336"
+    };
+
     function createCard(title, desc, due, priority) {
         const card = document.createElement("div");
         card.classList.add("card");
+        card.style.borderLeft = `4px solid ${priorityColors[priority]}`;
 
-        // text content wrapper
         const cardText = document.createElement("div");
         cardText.classList.add("card-text");
 
@@ -49,7 +55,6 @@ export const main_content = (() => {
         cardText.appendChild(cardDesc);
         cardText.appendChild(cardDue);
 
-        // icons wrapper
         const cardIcons = document.createElement("div");
         cardIcons.classList.add("card-icons");
 
@@ -61,11 +66,11 @@ export const main_content = (() => {
 
         cardIcons.appendChild(cardEdit);
         cardIcons.appendChild(cardCheck);
-        
+
         card.appendChild(cardText);
         card.appendChild(cardIcons);
 
-        content.appendChild(card);
+        content.insertBefore(card, addBtn);
     }
 
     const addBtn = document.createElement("img");
@@ -74,5 +79,5 @@ export const main_content = (() => {
     addBtn.title = "Add ToDo";
     content.appendChild(addBtn);
 
-    return { container : content, createCard }
+    return { container: content, createCard, addBtn }
 })();
