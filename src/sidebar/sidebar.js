@@ -1,42 +1,63 @@
-/* sidebar.js */ 
-import "./sidebar.css"
-import plusIcon from "../icons/add.svg"
+    /* sidebar.js */ 
+    import "./sidebar.css"
+    import plusIcon from "../icons/add.svg"
+    import deleteIcon from "../icons/delete.svg"
+    import editIcon from "../icons/edit.svg"
 
-export const sidebar = (() => {
-    const sidebarContainer = document.createElement("div");
-    sidebarContainer.classList.add("sidebar-container");
+    export const sidebar = (() => {
+        const sidebarContainer = document.createElement("div");
+        sidebarContainer.classList.add("sidebar-container");
 
-    const title = document.createElement("h1");
-    title.textContent = "Todalo";
+        const defaultTabs = document.createElement("div");
+        defaultTabs.classList.add("default-tabs");
 
-    const defaults = document.createElement("div");
-    defaults.textContent = "Defaults";
-    defaults.classList.add("project-divs");
+        const tabs = ["Default", "Today", "Upcoming"];
+        tabs.forEach(tab => {
+            const tabDiv = document.createElement("div");
+            tabDiv.textContent = tab;
+            tabDiv.classList.add("tab-div");
+            defaultTabs.appendChild(tabDiv);
+        });
 
-    const projectsList = document.createElement("div");
-    projectsList.classList.add("projects-list");
+        const projectsList = document.createElement("div");
+        projectsList.classList.add("projects-list");
 
-    projectsList.appendChild(defaults);
-    // append projects to projectsList instead of sidebarContainer
+        sidebarContainer.appendChild(defaultTabs);
+        sidebarContainer.appendChild(projectsList);
 
-    sidebarContainer.appendChild(title);
-    sidebarContainer.appendChild(projectsList);
-    // icon appended to sidebarContainer directly, not projectsList
+        function addProject(name) {
+            const newProj = document.createElement("div");
+            newProj.classList.add("project-divs");
 
-    function addProject(name) {
-        const newProj = document.createElement("div");
-        newProj.textContent = name;
-        newProj.classList.add("project-divs");
-        projectsList.appendChild(newProj);
-    }
+            const projName = document.createElement("span");
+            projName.textContent = name;
 
-    return { container: sidebarContainer, addProject};
-})()
+            const projIcons = document.createElement("div");
+            projIcons.classList.add("project-icons");
 
-const addIcon = document.createElement("img");
-addIcon.src = plusIcon;
-addIcon.classList.add("add-project-icon");
-addIcon.title = "Add Project"
+            const projEdit = document.createElement("img");
+            projEdit.src = editIcon;
+            projEdit.title = "Edit Project";
 
-sidebar.container.appendChild(addIcon);
+            const projDelete = document.createElement("img");
+            projDelete.src = deleteIcon;
+            projDelete.title = "Delete Project";
 
+            projIcons.appendChild(projEdit);
+            projIcons.appendChild(projDelete);
+
+            newProj.appendChild(projName);
+            newProj.appendChild(projIcons);
+
+            projectsList.appendChild(newProj);
+        }
+
+        return { container: sidebarContainer, addProject };
+    })()
+
+    const addIcon = document.createElement("img");
+    addIcon.src = plusIcon;
+    addIcon.classList.add("add-project-icon");
+    addIcon.title = "Add Project";
+
+    sidebar.container.appendChild(addIcon);

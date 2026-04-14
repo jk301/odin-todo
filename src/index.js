@@ -13,6 +13,18 @@ const mainBody = document.createElement("div");
 mainBody.classList.add("main-body");
 document.body.appendChild(mainBody);
 
+sidebarContent.addProject("projects 1");
+sidebarContent.addProject("projects 1");
+sidebarContent.addProject("projects 1");
+sidebarContent.addProject("projects 1");
+sidebarContent.addProject("projects 1");
+sidebarContent.addProject("projects 1");
+sidebarContent.addProject("projects 1");
+sidebarContent.addProject("projects 1");   
+
+
+
+
 mainBody.appendChild(mainHeader.container);
 mainBody.appendChild(mainContent.container);
 
