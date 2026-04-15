@@ -4,6 +4,7 @@ import "./main_page.css"
 import doneIcon from "../icons/done.svg";
 import editIcon from "../icons/edit.svg";
 import addIcon from "../icons/add.svg";
+import deleteIcon from "../icons/delete.svg"
 
 export const main_header = (() => {
     const header = document.createElement("div");
@@ -16,12 +17,12 @@ export const main_header = (() => {
         main_title.textContent = title;
         main_desc.textContent = desc;
     }
-    setContent("example title", "example description yes")
+    setContent("Default", "")
 
     header.appendChild(main_title);
     header.appendChild(main_desc);
 
-    return { container : header, setContent };
+    return { container: header, setContent };
 })();
 
 export const main_content = (() => {
@@ -34,22 +35,24 @@ export const main_content = (() => {
         high: "#f44336"
     };
 
-    function createCard(title, desc, due, priority) {
+    function createCard(todo, onEdit, onDelete, onDone) {
         const card = document.createElement("div");
         card.classList.add("card");
-        card.style.borderLeft = `4px solid ${priorityColors[priority]}`;
+        card.style.borderLeft = `4px solid ${priorityColors[todo.priority]}`;
+
+        if (todo.done) card.classList.add("card-done");
 
         const cardText = document.createElement("div");
         cardText.classList.add("card-text");
 
         const cardTitle = document.createElement("h2");
-        cardTitle.textContent = title;
+        cardTitle.textContent = todo.title;
 
         const cardDesc = document.createElement("p");
-        cardDesc.textContent = `Description : ${desc}`;
+        cardDesc.textContent = `Description : ${todo.desc}`;
 
         const cardDue = document.createElement("p");
-        cardDue.textContent = `Due : ${due}`;
+        cardDue.textContent = `Due : ${todo.due}`;
 
         cardText.appendChild(cardTitle);
         cardText.appendChild(cardDesc);
@@ -58,26 +61,127 @@ export const main_content = (() => {
         const cardIcons = document.createElement("div");
         cardIcons.classList.add("card-icons");
 
-        const cardCheck = document.createElement("img");
-        cardCheck.src = doneIcon;
-
         const cardEdit = document.createElement("img");
         cardEdit.src = editIcon;
+        cardEdit.title = "Edit";
+
+        const cardCheck = document.createElement("img");
+        cardCheck.src = doneIcon;
+        cardCheck.title = "Done";
+
+        const cardDelete = document.createElement("img");
+        cardDelete.src = deleteIcon; // replace with delete icon
+        cardDelete.title = "Delete";
+
+        cardEdit.addEventListener("click", () => onEdit && onEdit());
+        cardCheck.addEventListener("click", () => onDone && onDone(card));
+        cardDelete.addEventListener("click", () => {
+            onDelete && onDelete();
+            card.remove();
+        });
 
         cardIcons.appendChild(cardEdit);
+        cardIcons.appendChild(cardDelete);
         cardIcons.appendChild(cardCheck);
 
         card.appendChild(cardText);
         card.appendChild(cardIcons);
 
-        content.insertBefore(card, addBtn);
+        return card;
     }
 
-    const addBtn = document.createElement("img");
-    addBtn.src = addIcon;
-    addBtn.classList.add("add-card-icon");
-    addBtn.title = "Add ToDo";
-    content.appendChild(addBtn);
+    function createGroup(name, todos, onAddTodo, onEdit, onDelete, onDone) {
+        const group = document.createElement("div");
+        group.classList.add("card-group");
 
-    return { container: content, createCard, addBtn }
+        const groupTitle = document.createElement("h3");
+        groupTitle.classList.add("group-title");
+        groupTitle.textContent = name;
+
+        group.appendChild(groupTitle);
+
+        todos.forEach((todo, i) => {
+            const card = createCard(todo,
+                () => onEdit && onEdit(i),
+                () => onDelete && onDelete(i),
+                () => onDone && onDone(i, card)
+            );
+            group.appendChild(card);
+        });
+
+        if (onAddTodo) {
+            const addTodoBtn = document.createElement("img");
+            addTodoBtn.src = addIcon;
+            addTodoBtn.classList.add("add-card-icon");
+            addTodoBtn.title = "Add Todo";
+            addTodoBtn.addEventListener("click", onAddTodo);
+            group.appendChild(addTodoBtn);
+        }
+
+        return group;
+    }
+
+    function render(store, filter = "default", activeProject = null) {
+        content.innerHTML = "";
+
+        const today = new Date().toDateString();
+
+        if (filter === "project" && activeProject !== null) {
+            const project = store.projects[activeProject];
+            const group = createGroup(
+                project.name,
+                project.todos,
+                () => addTodoCallback(activeProject),
+                (i) => editTodoCallback(activeProject, i),
+                (i) => deleteTodoCallback(activeProject, i),
+                (i, card) => doneTodoCallback(activeProject, i, card)
+            );
+            content.appendChild(group);
+            return;
+        }
+
+        const allGroups = [
+            { name: store.default.name, todos: store.default.todos, index: "default" },
+            ...store.projects.map((p, i) => ({ name: p.name, todos: p.todos, index: i }))
+        ];
+
+        allGroups.forEach(({ name, todos, index }) => {
+            let filteredTodos = todos;
+
+            if (filter === "today") {
+                filteredTodos = todos.filter(t =>
+                    t.due !== "No due date" && new Date(t.due).toDateString() === today
+                );
+            } else if (filter === "upcoming") {
+                filteredTodos = todos.filter(t =>
+                    t.due !== "No due date" && new Date(t.due) > new Date()
+                );
+            }
+
+            if (filter !== "default" && filteredTodos.length === 0) return;
+
+            const group = createGroup(
+                name,
+                filteredTodos,
+                filter === "default" ? () => addTodoCallback(index) : null,
+                (i) => editTodoCallback(index, i),
+                (i) => deleteTodoCallback(index, i),
+                (i, card) => doneTodoCallback(index, i, card)
+            );
+
+            content.appendChild(group);
+        });
+    }
+
+    let addTodoCallback = () => {};
+    let editTodoCallback = () => {};
+    let deleteTodoCallback = () => {};
+    let doneTodoCallback = () => {};
+
+    function onAddTodo(cb) { addTodoCallback = cb; }
+    function onEditTodo(cb) { editTodoCallback = cb; }
+    function onDeleteTodo(cb) { deleteTodoCallback = cb; }
+    function onDoneTodo(cb) { doneTodoCallback = cb; }
+
+    return { container: content, render, onAddTodo, onEditTodo, onDeleteTodo, onDoneTodo };
 })();

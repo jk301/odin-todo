@@ -10,7 +10,6 @@ export const todoModal = (() => {
     modalContainer.classList.add("modal-container");
 
     const modalTitle = document.createElement("h2");
-    modalTitle.textContent = "Add Todo";
 
     const titleInput = document.createElement("input");
     titleInput.type = "text";
@@ -37,6 +36,9 @@ export const todoModal = (() => {
         prioritySelect.appendChild(option);
     });
 
+    const projectSelect = document.createElement("select");
+    projectSelect.classList.add("modal-select");
+
     const modalBtns = document.createElement("div");
     modalBtns.classList.add("modal-btns");
 
@@ -56,11 +58,26 @@ export const todoModal = (() => {
     modalContainer.appendChild(descInput);
     modalContainer.appendChild(dueInput);
     modalContainer.appendChild(prioritySelect);
+    modalContainer.appendChild(projectSelect);
     modalContainer.appendChild(modalBtns);
 
     overlay.appendChild(modalContainer);
 
-    function open(mode, todo = {}) {
+    function open(mode, projects = [], todo = {}) {
+        // repopulate project select
+        projectSelect.innerHTML = "";
+        const defaultOption = document.createElement("option");
+        defaultOption.value = "default";
+        defaultOption.textContent = "Default";
+        projectSelect.appendChild(defaultOption);
+
+        projects.forEach((p, i) => {
+            const option = document.createElement("option");
+            option.value = i;
+            option.textContent = p.name;
+            projectSelect.appendChild(option);
+        });
+
         if (mode === "edit") {
             modalTitle.textContent = "Edit Todo";
             confirmBtn.textContent = "Save";
@@ -68,6 +85,7 @@ export const todoModal = (() => {
             descInput.value = todo.desc || "";
             dueInput.value = todo.due || "";
             prioritySelect.value = todo.priority || "low";
+            projectSelect.value = todo.projectIndex ?? "default";
         } else {
             modalTitle.textContent = "Add Todo";
             confirmBtn.textContent = "Add";
@@ -75,6 +93,7 @@ export const todoModal = (() => {
             descInput.value = "";
             dueInput.value = "";
             prioritySelect.value = "low";
+            projectSelect.value = "default";
         }
         document.body.appendChild(overlay);
         titleInput.focus();
@@ -86,6 +105,7 @@ export const todoModal = (() => {
         descInput.value = "";
         dueInput.value = "";
         prioritySelect.value = "low";
+        projectSelect.value = "default";
     }
 
     cancelBtn.addEventListener("click", close);
@@ -100,11 +120,15 @@ export const todoModal = (() => {
             const formattedDue = dueInput.value
                 ? format(new Date(dueInput.value), "MMM dd yyyy")
                 : "No due date";
+            const projectIndex = projectSelect.value === "default"
+                ? "default"
+                : parseInt(projectSelect.value);
             callback(
                 titleInput.value.trim(),
                 descInput.value.trim(),
                 formattedDue,
-                prioritySelect.value
+                prioritySelect.value,
+                projectIndex
             );
             close();
         }
