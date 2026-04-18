@@ -64,16 +64,15 @@ export const todoModal = (() => {
     overlay.appendChild(modalContainer);
 
     function open(mode, projects = [], todo = {}) {
-        // repopulate project select
         projectSelect.innerHTML = "";
         const defaultOption = document.createElement("option");
         defaultOption.value = "default";
         defaultOption.textContent = "Default";
         projectSelect.appendChild(defaultOption);
 
-        projects.forEach((p, i) => {
+        projects.forEach((p) => {
             const option = document.createElement("option");
-            option.value = i;
+            option.value = p.id;
             option.textContent = p.name;
             projectSelect.appendChild(option);
         });
@@ -83,9 +82,9 @@ export const todoModal = (() => {
             confirmBtn.textContent = "Save";
             titleInput.value = todo.title || "";
             descInput.value = todo.desc || "";
-            dueInput.value = todo.due || "";
+            dueInput.value = todo.rawDue || "";
             prioritySelect.value = todo.priority || "low";
-            projectSelect.value = todo.projectIndex ?? "default";
+            projectSelect.value = todo.projectId ?? "default";
         } else {
             modalTitle.textContent = "Add Todo";
             confirmBtn.textContent = "Add";
@@ -117,18 +116,20 @@ export const todoModal = (() => {
     function onConfirm(callback) {
         confirmBtn.onclick = () => {
             if (titleInput.value.trim() === "") return;
-            const formattedDue = dueInput.value
-                ? format(new Date(dueInput.value), "MMM dd yyyy")
+            const rawDue = dueInput.value;
+            const formattedDue = rawDue
+                ? format(new Date(rawDue), "MMM dd yyyy")
                 : "No due date";
-            const projectIndex = projectSelect.value === "default"
+            const newProjectId = projectSelect.value === "default"
                 ? "default"
                 : parseInt(projectSelect.value);
             callback(
                 titleInput.value.trim(),
                 descInput.value.trim(),
                 formattedDue,
+                rawDue,
                 prioritySelect.value,
-                projectIndex
+                newProjectId
             );
             close();
         }

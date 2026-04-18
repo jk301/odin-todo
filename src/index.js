@@ -15,37 +15,36 @@ document.body.appendChild(mainBody);
 mainBody.appendChild(main_header.container);
 mainBody.appendChild(main_content.container);
 
-// current filter state
 let currentFilter = "default";
-let activeProject = null;
+let activeProjectId = null;
 
-// initial render
-main_content.render(store, currentFilter, activeProject);
+main_content.render(store, currentFilter, activeProjectId);
 
-store.projects.forEach((project, index) => {
+// load saved projects into sidebar
+store.projects.forEach((project) => {
     sidebar.addProject(
         project.name,
         () => {
             currentFilter = "project";
-            activeProject = index;
+            activeProjectId = project.id;
             main_header.setContent(project.name, project.desc);
-            main_content.render(store, "project", index);
+            main_content.render(store, "project", project.id);
         },
         (updateName) => {
-            modal.open("edit", project.name, project.desc);
+            modal.open("edit", store.projects.find(p => p.id === project.id).name, store.projects.find(p => p.id === project.id).desc);
             modal.onConfirm((newName, newDesc) => {
-                editProject(index, newName, newDesc);
+                editProject(project.id, newName, newDesc);
                 updateName(newName);
                 main_header.setContent(newName, newDesc);
-                main_content.render(store, currentFilter, activeProject);
+                main_content.render(store, currentFilter, activeProjectId);
             });
         },
         () => {
-            deleteProject(index);
+            deleteProject(project.id);
             currentFilter = "default";
-            activeProject = null;
+            activeProjectId = null;
             main_header.setContent("Default", "");
-            main_content.render(store, currentFilter, activeProject);
+            main_content.render(store, currentFilter, activeProjectId);
         }
     );
 });
@@ -55,9 +54,9 @@ const tabs = document.querySelectorAll(".tab-div");
 tabs.forEach(tab => {
     tab.addEventListener("click", () => {
         currentFilter = tab.textContent.toLowerCase();
-        activeProject = null;
+        activeProjectId = null;
         main_header.setContent(tab.textContent, "");
-        main_content.render(store, currentFilter, activeProject);
+        main_content.render(store, currentFilter, activeProjectId);
     });
 });
 
@@ -67,64 +66,64 @@ addProjectIcon.addEventListener("click", () => {
     modal.open("add");
     modal.onConfirm((name, desc) => {
         addProject(name, desc);
-        const index = store.projects.length - 1;
+        const project = store.projects[store.projects.length - 1];
         sidebar.addProject(name,
             () => {
                 currentFilter = "project";
-                activeProject = index;
-                main_header.setContent(name, desc);
-                main_content.render(store, "project", index);
+                activeProjectId = project.id;
+                main_header.setContent(project.name, project.desc);
+                main_content.render(store, "project", project.id);
             },
             (updateName) => {
-                modal.open("edit", name, desc);
+                modal.open("edit", store.projects.find(p => p.id === project.id).name, store.projects.find(p => p.id === project.id).desc);
                 modal.onConfirm((newName, newDesc) => {
-                    editProject(index, newName, newDesc);
+                    editProject(project.id, newName, newDesc);
                     updateName(newName);
                     main_header.setContent(newName, newDesc);
-                    main_content.render(store, currentFilter, activeProject);
+                    main_content.render(store, currentFilter, activeProjectId);
                 });
             },
             () => {
-                deleteProject(index);
+                deleteProject(project.id);
                 currentFilter = "default";
-                activeProject = null;
+                activeProjectId = null;
                 main_header.setContent("Default", "");
-                main_content.render(store, currentFilter, activeProject);
+                main_content.render(store, currentFilter, activeProjectId);
             }
         );
     });
 });
 
 // add todo
-main_content.onAddTodo((projectIndex) => {
+main_content.onAddTodo((projectId) => {
     todoModal.open("add", store.projects);
-    todoModal.onConfirm((title, desc, due, priority, projectIndex) => {
-        addTodo(projectIndex, title, desc, due, priority);
-        main_content.render(store, currentFilter, activeProject);
+    todoModal.onConfirm((title, desc, due, rawDue, priority, newProjectId) => {
+        addTodo(newProjectId, title, desc, due, rawDue, priority);
+        main_content.render(store, currentFilter, activeProjectId);
     });
 });
 
 // edit todo
-main_content.onEditTodo((projectIndex, todoIndex) => {
-    const target = projectIndex === "default"
+main_content.onEditTodo((projectId, todoIndex) => {
+    const target = projectId === "default"
         ? store.default
-        : store.projects[projectIndex];
+        : store.projects.find(p => p.id === projectId);
     const todo = target.todos[todoIndex];
     todoModal.open("edit", store.projects, todo);
-    todoModal.onConfirm((title, desc, due, priority, projectIndex) => {
-        editTodo(projectIndex, todoIndex, title, desc, due, priority);
-        main_content.render(store, currentFilter, activeProject);
+    todoModal.onConfirm((title, desc, due, rawDue, priority, newProjectId) => {
+        editTodo(newProjectId, todoIndex, title, desc, due, rawDue, priority);
+        main_content.render(store, currentFilter, activeProjectId);
     });
 });
 
 // delete todo
-main_content.onDeleteTodo((projectIndex, todoIndex) => {
-    deleteTodo(projectIndex, todoIndex);
-    main_content.render(store, currentFilter, activeProject);
+main_content.onDeleteTodo((projectId, todoIndex) => {
+    deleteTodo(projectId, todoIndex);
+    main_content.render(store, currentFilter, activeProjectId);
 });
 
 // done todo
-main_content.onDoneTodo((projectIndex, todoIndex, card) => {
-    toggleDone(projectIndex, todoIndex);
+main_content.onDoneTodo((projectId, todoIndex, card) => {
+    toggleDone(projectId, todoIndex);
     card.classList.toggle("card-done");
 });

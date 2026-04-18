@@ -102,15 +102,12 @@ export const main_content = (() => {
         }
 
         todos.forEach((todo, i) => {
-            let card;
-
-            card = createCard(
+            const card = createCard(
                 todo,
                 () => onEdit && onEdit(i),
                 () => onDelete && onDelete(i),
                 () => onDone && onDone(i, card)
             );
-
             group.appendChild(card);
         });
 
@@ -126,20 +123,20 @@ export const main_content = (() => {
         return group;
     }
 
-    function render(store, filter = "default", activeProject = null) {
+    function render(store, filter = "default", activeProjectId = null) {
         content.innerHTML = "";
 
         const today = new Date().toDateString();
 
-        if (filter === "project" && activeProject !== null) {
-            const project = store.projects[activeProject];
+        if (filter === "project" && activeProjectId !== null) {
+            const project = store.projects.find(p => p.id === activeProjectId);
             const group = createGroup(
                 project.name,
                 project.todos,
-                () => addTodoCallback(activeProject),
-                (i) => editTodoCallback(activeProject, i),
-                (i) => deleteTodoCallback(activeProject, i),
-                (i, card) => doneTodoCallback(activeProject, i, card),
+                () => addTodoCallback(activeProjectId),
+                (i) => editTodoCallback(activeProjectId, i),
+                (i) => deleteTodoCallback(activeProjectId, i),
+                (i, card) => doneTodoCallback(activeProjectId, i, card),
                 false
             );
             content.appendChild(group);
@@ -147,11 +144,11 @@ export const main_content = (() => {
         }
 
         const allGroups = [
-            { name: store.default.name, todos: store.default.todos, index: "default" },
-            ...store.projects.map((p, i) => ({ name: p.name, todos: p.todos, index: i }))
+            { name: store.default.name, todos: store.default.todos, id: "default" },
+            ...store.projects.map((p) => ({ name: p.name, todos: p.todos, id: p.id }))
         ];
 
-        allGroups.forEach(({ name, todos, index }) => {
+        allGroups.forEach(({ name, todos, id }) => {
             let filteredTodos = todos;
 
             if (filter === "today") {
@@ -169,10 +166,10 @@ export const main_content = (() => {
             const group = createGroup(
                 name,
                 filteredTodos,
-                filter === "default" ? () => addTodoCallback(index) : null,
-                (i) => editTodoCallback(index, i),
-                (i) => deleteTodoCallback(index, i),
-                (i, card) => doneTodoCallback(index, i, card)
+                filter === "default" ? () => addTodoCallback(id) : null,
+                (i) => editTodoCallback(id, i),
+                (i) => deleteTodoCallback(id, i),
+                (i, card) => doneTodoCallback(id, i, card)
             );
 
             content.appendChild(group);
