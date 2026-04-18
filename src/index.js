@@ -22,6 +22,34 @@ let activeProject = null;
 // initial render
 main_content.render(store, currentFilter, activeProject);
 
+store.projects.forEach((project, index) => {
+    sidebar.addProject(
+        project.name,
+        () => {
+            currentFilter = "project";
+            activeProject = index;
+            main_header.setContent(project.name, project.desc);
+            main_content.render(store, "project", index);
+        },
+        (updateName) => {
+            modal.open("edit", project.name, project.desc);
+            modal.onConfirm((newName, newDesc) => {
+                editProject(index, newName, newDesc);
+                updateName(newName);
+                main_header.setContent(newName, newDesc);
+                main_content.render(store, currentFilter, activeProject);
+            });
+        },
+        () => {
+            deleteProject(index);
+            currentFilter = "default";
+            activeProject = null;
+            main_header.setContent("Default", "");
+            main_content.render(store, currentFilter, activeProject);
+        }
+    );
+});
+
 // tab switching
 const tabs = document.querySelectorAll(".tab-div");
 tabs.forEach(tab => {

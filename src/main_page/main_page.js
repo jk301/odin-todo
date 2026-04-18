@@ -70,7 +70,7 @@ export const main_content = (() => {
         cardCheck.title = "Done";
 
         const cardDelete = document.createElement("img");
-        cardDelete.src = deleteIcon; // replace with delete icon
+        cardDelete.src = deleteIcon;
         cardDelete.title = "Delete";
 
         cardEdit.addEventListener("click", () => onEdit && onEdit());
@@ -90,22 +90,27 @@ export const main_content = (() => {
         return card;
     }
 
-    function createGroup(name, todos, onAddTodo, onEdit, onDelete, onDone) {
+    function createGroup(name, todos, onAddTodo, onEdit, onDelete, onDone, showTitle = true) {
         const group = document.createElement("div");
         group.classList.add("card-group");
 
-        const groupTitle = document.createElement("h3");
-        groupTitle.classList.add("group-title");
-        groupTitle.textContent = name;
-
-        group.appendChild(groupTitle);
+        if (showTitle) {
+            const groupTitle = document.createElement("h3");
+            groupTitle.classList.add("group-title");
+            groupTitle.textContent = name;
+            group.appendChild(groupTitle);
+        }
 
         todos.forEach((todo, i) => {
-            const card = createCard(todo,
+            let card;
+
+            card = createCard(
+                todo,
                 () => onEdit && onEdit(i),
                 () => onDelete && onDelete(i),
                 () => onDone && onDone(i, card)
             );
+
             group.appendChild(card);
         });
 
@@ -134,7 +139,8 @@ export const main_content = (() => {
                 () => addTodoCallback(activeProject),
                 (i) => editTodoCallback(activeProject, i),
                 (i) => deleteTodoCallback(activeProject, i),
-                (i, card) => doneTodoCallback(activeProject, i, card)
+                (i, card) => doneTodoCallback(activeProject, i, card),
+                false
             );
             content.appendChild(group);
             return;
