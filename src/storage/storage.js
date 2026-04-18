@@ -77,3 +77,25 @@ export function toggleDone(projectId, todoIndex) {
 function save() {
     localStorage.setItem("todoStore", JSON.stringify(store));
 }
+
+
+// The data on first load
+if (store.projects.length === 0 && store.default.todos.length === 0) {
+    store.default.todos.push(
+        { title: "Buy groceries", desc: "Milk, eggs, bread", due: "Apr 20 2026", rawDue: "2026-04-20", priority: "low", done: false, projectId: "default" },
+        { title: "Call the dentist", desc: "Schedule a checkup", due: "Apr 22 2026", rawDue: "2026-04-22", priority: "medium", done: false, projectId: "default" },
+        { title: "Pay electricity bill", desc: "Due end of month", due: "Apr 30 2026", rawDue: "2026-04-30", priority: "high", done: false, projectId: "default" }
+    );
+
+    const projectId = Date.now();
+    store.projects.push({
+        id: projectId,
+        name: "Work",
+        desc: "Work related tasks",
+        todos: [
+            { title: "Prepare meeting notes", desc: "For the Monday standup", due: "Apr 21 2026", rawDue: "2026-04-21", priority: "high", done: false, projectId }
+        ]
+    });
+
+    save();
+}
